@@ -1,6 +1,5 @@
 package com.ocellusportals;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.util.EnumSet;
@@ -13,10 +12,6 @@ import net.runelite.client.ui.overlay.components.TitleComponent;
 /** Small panel: which sequence is running and which wave is up. */
 class OcellusPortalsInfoOverlay extends OverlayPanel
 {
-	private static final Color ORANGE = new Color(255, 154, 46);
-	private static final Color RED = new Color(255, 92, 99);
-	private static final Color GREEN = new Color(63, 211, 127);
-
 	private final OcellusPortalsPlugin plugin;
 	private final OcellusPortalsConfig config;
 
@@ -52,23 +47,10 @@ class OcellusPortalsInfoOverlay extends OverlayPanel
 			{
 				name += "?";
 			}
-			panelComponent.getChildren().add(LineComponent.builder().left("Sequence").right(name).rightColor(colourOf(m.colour)).build());
+			panelComponent.getChildren().add(LineComponent.builder().left("Sequence").right(name).rightColor(m.colour.tint).build());
 			panelComponent.getChildren().add(LineComponent.builder().left("Wave").right(m.wave + " / " + PortalSequences.WAVES).build());
-			panelComponent.getChildren().add(LineComponent.builder().left("Then").right(m.colour.next().name().toLowerCase()).rightColor(colourOf(m.colour.next())).build());
+			panelComponent.getChildren().add(LineComponent.builder().left("Then").right(m.colour.next().name().toLowerCase()).rightColor(m.colour.next().tint).build());
 		}
 		return super.render(g);
-	}
-
-	private static Color colourOf(PortalSequences.Colour c)
-	{
-		switch (c)
-		{
-			case ORANGE:
-				return ORANGE;
-			case RED:
-				return RED;
-			default:
-				return GREEN;
-		}
 	}
 }

@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +109,6 @@ public class OcellusPortalsPlugin extends Plugin
 
 	// derived state read by the overlays (client thread only)
 	private final List<WorldPoint> safeTiles = new ArrayList<>();
-	private final List<WorldPoint> safeTemplateTiles = new ArrayList<>();
 	private WorldPoint nextTile;
 	private final List<LabelledTile> remainingTiles = new ArrayList<>();
 	private PortalSequences.Match current;
@@ -160,7 +158,6 @@ public class OcellusPortalsPlugin extends Plugin
 		floorPortals.clear();
 		pools.clear();
 		safeTiles.clear();
-		safeTemplateTiles.clear();
 		remainingTiles.clear();
 		nextTile = null;
 		current = null;
@@ -236,8 +233,8 @@ public class OcellusPortalsPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick e)
 	{
-		prune(floorPortals);
-		prune(pools);
+		floorPortals.removeIf(GraphicsObject::finished);
+		pools.removeIf(GraphicsObject::finished);
 		Player me = client.getLocalPlayer();
 		if (me == null)
 		{
@@ -248,17 +245,6 @@ public class OcellusPortalsPlugin extends Plugin
 		inArena = template != null && template.getRegionID() == PortalSequences.REGION_ID;
 	}
 
-	private static void prune(List<GraphicsObject> list)
-	{
-		for (Iterator<GraphicsObject> it = list.iterator(); it.hasNext(); )
-		{
-			if (it.next().finished())
-			{
-				it.remove();
-			}
-		}
-	}
-
 	/**
 	 * Pair each orange portal on a horizontal line with the orange portal on a vertical line that it
 	 * actually crosses, and publish the crossing tiles. Then recognise which sequence is running.
@@ -266,7 +252,6 @@ public class OcellusPortalsPlugin extends Plugin
 	private void recompute()
 	{
 		safeTiles.clear();
-		safeTemplateTiles.clear();
 
 		List<Portal> horizontal = new ArrayList<>();
 		List<Portal> vertical = new ArrayList<>();
@@ -330,6 +315,7 @@ public class OcellusPortalsPlugin extends Plugin
 		safeTiles.addAll(best);
 
 		// Template coordinates, for matching against the known sequences.
+		List<WorldPoint> safeTemplateTiles = new ArrayList<>(best.size());
 		WorldView wv = client.getTopLevelWorldView();
 		for (WorldPoint wp : best)
 		{

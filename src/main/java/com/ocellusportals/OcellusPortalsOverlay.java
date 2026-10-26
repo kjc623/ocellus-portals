@@ -31,6 +31,7 @@ class OcellusPortalsOverlay extends Overlay
 	private static final Stroke DASHED = new BasicStroke(2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10f, new float[]{6f, 4f}, 0f);
 	private static final Color POOL_FILL = new Color(150, 40, 220, 70);
 	private static final Color POOL_EDGE = new Color(190, 90, 255, 180);
+	private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
 	private final Client client;
 	private final OcellusPortalsPlugin plugin;
@@ -70,25 +71,25 @@ class OcellusPortalsOverlay extends Overlay
 			}
 		}
 
+		WorldPoint next = plugin.getNextTile();
 		if (config.showRemaining())
 		{
 			Color c = withAlpha(config.nextColor(), 120);
 			for (OcellusPortalsPlugin.LabelledTile t : plugin.getRemainingTiles())
 			{
-				if (t.tile.equals(plugin.getNextTile()))
+				if (t.tile.equals(next))
 				{
 					continue;
 				}
 				Polygon poly = tilePoly(wv, t.tile);
 				if (poly != null)
 				{
-					OverlayUtil.renderPolygon(g, poly, c, new Color(0, 0, 0, 0), THIN);
+					OverlayUtil.renderPolygon(g, poly, c, TRANSPARENT, THIN);
 					drawLabel(g, poly, t.label, c);
 				}
 			}
 		}
 
-		WorldPoint next = plugin.getNextTile();
 		if (config.showNext() && next != null)
 		{
 			Polygon poly = tilePoly(wv, next);
@@ -168,7 +169,7 @@ class OcellusPortalsOverlay extends Overlay
 						Polygon poly = tilePoly(wv, new WorldPoint(x, y, p.plane));
 						if (poly != null)
 						{
-							OverlayUtil.renderPolygon(g, poly, Color.CYAN, new Color(0, 0, 0, 0), THIN);
+							OverlayUtil.renderPolygon(g, poly, Color.CYAN, TRANSPARENT, THIN);
 							drawLabel(g, poly, p.id + (p.spansX ? " H" : " V"), Color.CYAN);
 						}
 					}

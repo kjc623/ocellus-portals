@@ -1,5 +1,6 @@
 package com.ocellusportals;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,22 +21,29 @@ final class PortalSequences
 	static final int REGION_ID = 16472;
 	static final int PLANE = 1;
 
+	static final int WAVES = 6;
+
+	/** A sequence: its safe tiles as [wave-1] -> {columnsOut, rowsOut}, and the tint the panel shows it in. */
 	enum Colour
 	{
-		ORANGE, RED, GREEN;
+		ORANGE(new int[][]{{1, 0}, {1, 4}, {6, 0}, {2, 0}, {4, 2}, {2, 6}}, new Color(255, 154, 46)),
+		RED(new int[][]{{4, 3}, {6, 2}, {8, 0}, {3, 3}, {7, 3}, {6, 4}}, new Color(255, 92, 99)),
+		GREEN(new int[][]{{0, 0}, {5, 0}, {9, 0}, {5, 4}, {3, 2}, {0, 4}}, new Color(63, 211, 127));
+
+		final int[][] offsets;
+		final Color tint;
+
+		Colour(int[][] offsets, Color tint)
+		{
+			this.offsets = offsets;
+			this.tint = tint;
+		}
 
 		Colour next()
 		{
 			return values()[(ordinal() + 1) % values().length];
 		}
 	}
-
-	/** [wave-1] -> {columnsOut, rowsOut} */
-	private static final int[][] ORANGE = {{1, 0}, {1, 4}, {6, 0}, {2, 0}, {4, 2}, {2, 6}};
-	private static final int[][] RED = {{4, 3}, {6, 2}, {8, 0}, {3, 3}, {7, 3}, {6, 4}};
-	private static final int[][] GREEN = {{0, 0}, {5, 0}, {9, 0}, {5, 4}, {3, 2}, {0, 4}};
-
-	static final int WAVES = 6;
 
 	/** A quadrant: inner corner (region-local) and the outward direction on each axis. */
 	enum Quadrant
@@ -81,23 +89,10 @@ final class PortalSequences
 	{
 	}
 
-	private static int[][] table(Colour c)
-	{
-		switch (c)
-		{
-			case ORANGE:
-				return ORANGE;
-			case RED:
-				return RED;
-			default:
-				return GREEN;
-		}
-	}
-
 	/** The marked safe tile of a wave (1-6) in a quadrant, as a template world point. */
 	static WorldPoint safeTile(Colour colour, int wave, Quadrant q)
 	{
-		int[] off = table(colour)[wave - 1];
+		int[] off = colour.offsets[wave - 1];
 		return q.tile(off[0], off[1]);
 	}
 
